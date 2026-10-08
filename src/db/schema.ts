@@ -49,6 +49,14 @@ const migrations: string[] = [
   CREATE INDEX documents_member ON documents (member_id);
   CREATE INDEX documents_appointment ON documents (appointment_id);
   `,
+  `
+  ALTER TABLE appointments ADD COLUMN calendar_event_id TEXT;
+
+  CREATE TABLE settings (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT NOT NULL
+  );
+  `,
 ];
 
 export async function migrate(db: SQLiteDatabase): Promise<void> {

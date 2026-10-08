@@ -35,6 +35,7 @@ type AppointmentRow = {
   starts_at: number;
   reminder_minutes: string;
   notification_ids: string;
+  calendar_event_id: string | null;
   notes: string | null;
   outcome: string | null;
   status: AppointmentStatus;
@@ -77,6 +78,7 @@ const toAppointment = (r: AppointmentRow): Appointment => ({
   startsAt: r.starts_at,
   reminderMinutes: JSON.parse(r.reminder_minutes),
   notificationIds: JSON.parse(r.notification_ids),
+  calendarEventId: r.calendar_event_id,
   notes: r.notes,
   outcome: r.outcome,
   status: r.status,
@@ -148,7 +150,7 @@ export async function deleteMember(db: SQLiteDatabase, id: string): Promise<void
 
 // Consultas
 
-export type AppointmentInput = Omit<Appointment, 'id' | 'createdAt' | 'notificationIds'>;
+export type AppointmentInput = Omit<Appointment, 'id' | 'createdAt' | 'notificationIds' | 'calendarEventId'>;
 
 export async function listAppointments(
   db: SQLiteDatabase,
@@ -215,6 +217,29 @@ export async function saveAppointment(
 
 export async function setAppointmentNotifications(db: SQLiteDatabase, id: string, ids: string[]): Promise<void> {
   await db.runAsync('UPDATE appointments SET notification_ids = ? WHERE id = ?', JSON.stringify(ids), id);
+}
+
+export async function setAppointmentCalendarEvent(db: SQLiteDatabase, id: string, eventId: string | null): Promise<void> {
+  await db.runAsync('UPDATE appointments SET calendar_event_id = ? WHERE id = ?', eventId, id);
+}
+
+/** Consultas marcadas a partir de agora, para sincronizar com o calendário. */
+export async function listScheduledUpcoming(db: SQLiteDatabase): Promise<Appointment[]> {
+  const rows = await db.getAllAsync<AppointmentRow>(
+    "SELECT * FROM appointments WHERE status = 'scheduled' AND starts_at >= ? ORDER BY starts_at",
+    Date.now(),
+  );
+  return rows.map(toAppointment);
+}
+
+export async function listAppointmentsInCalendar(db: SQLiteDatabase, memberId?: string): Promise<Appointment[]> {
+  const rows = memberId
+    ? await db.getAllAsync<AppointmentRow>(
+        'SELECT * FROM appointments WHERE calendar_event_id IS NOT NULL AND member_id = ?',
+        memberId,
+      )
+    : await db.getAllAsync<AppointmentRow>('SELECT * FROM appointments WHERE calendar_event_id IS NOT NULL');
+  return rows.map(toAppointment);
 }
 
 export async function deleteAppointment(db: SQLiteDatabase, id: string): Promise<void> {
@@ -304,4 +329,16 @@ export async function listNotificationIdsForMember(db: SQLiteDatabase, memberId:
     memberId,
   );
   return rows.flatMap((r) => JSON.parse(r.notification_ids) as string[]);
+}
+
+// Definições
+
+export async function getSetting(db: SQLiteDatabase, key: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', key);
+  return row?.value ?? null;
+}
+
+export async function setSetting(db: SQLiteDatabase, key: string, value: string | null): Promise<void> {
+  if (value == null) await db.runAsync('DELETE FROM settings WHERE key = ?', key);
+  else await db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', key, value);
 }

@@ -5,6 +5,7 @@ import { Alert, Linking, Platform, Text } from 'react-native';
 import { DocumentCard } from '@/components/DocumentCard';
 import { Body, Button, Card, MemberAvatar, Row, Screen, SectionTitle } from '@/components/ui';
 import { deleteAppointment, getAppointment, getMember, listDocuments } from '@/db/repo';
+import { removeCalendarEvent } from '@/lib/calendar';
 import { formatDateTime, formatWeekday } from '@/lib/format';
 import { cancelReminders, reminderOptions } from '@/lib/notifications';
 import { useColors } from '@/lib/theme';
@@ -40,6 +41,7 @@ export default function AppointmentDetail() {
         style: 'destructive',
         onPress: async () => {
           await cancelReminders(a.notificationIds);
+          await removeCalendarEvent(a.calendarEventId).catch(() => undefined);
           await deleteAppointment(db, a.id);
           router.back();
         },
@@ -68,6 +70,7 @@ export default function AppointmentDetail() {
             {a.reminderMinutes.map((m) => reminderOptions.find((r) => r.minutes === m)?.label ?? `${m} min antes`).join(', ')}
           </Body>
         ) : null}
+        {a.calendarEventId ? <Body muted>No calendário do telemóvel</Body> : null}
       </Card>
       {a.notes ? (
         <Card>

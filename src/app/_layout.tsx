@@ -73,6 +73,7 @@ function App() {
         <Stack.Screen name="consulta/[id]" options={{ title: 'Consulta' }} />
         <Stack.Screen name="documento/editar" options={{ title: 'Documento', presentation: 'modal' }} />
         <Stack.Screen name="documento/[id]" options={{ title: 'Documento' }} />
+        <Stack.Screen name="calendario" options={{ title: 'Google Calendário' }} />
       </Stack>
     </SQLiteProvider>
   );

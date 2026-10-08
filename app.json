@@ -76,7 +76,13 @@
         }
       ],
       "expo-sharing",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Para adicionar as consultas da família ao teu calendário."
+        }
+      ]
     ],
     "scheme": "appbaby",
     "experiments": {

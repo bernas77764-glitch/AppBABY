@@ -26,6 +26,8 @@ export type Appointment = {
   startsAt: number;
   reminderMinutes: number[];
   notificationIds: string[];
+  /** Evento correspondente no calendário do telemóvel (ex.: Google Calendário), se sincronizado. */
+  calendarEventId: string | null;
   notes: string | null;
   outcome: string | null;
   status: AppointmentStatus;

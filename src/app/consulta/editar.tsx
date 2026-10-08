@@ -13,6 +13,7 @@ import {
   setAppointmentNotifications,
   type AppointmentInput,
 } from '@/db/repo';
+import { trySyncAppointment } from '@/lib/calendar';
 import { cancelReminders, defaultReminders, reminderOptions, scheduleReminders } from '@/lib/notifications';
 
 function nextHalfHour(): number {
@@ -47,7 +48,7 @@ export default function EditAppointment() {
     if (!id) return;
     getAppointment(db, id).then((a) => {
       if (!a) return;
-      const { id: _id, createdAt: _c, notificationIds, ...rest } = a;
+      const { id: _id, createdAt: _c, notificationIds, calendarEventId: _e, ...rest } = a;
       setForm(rest);
       setOldNotificationIds(notificationIds);
     });
@@ -68,8 +69,15 @@ export default function EditAppointment() {
     const savedId = await saveAppointment(db, input, id);
     await cancelReminders(oldNotificationIds);
     const member = await getMember(db, input.memberId);
-    const ids = await scheduleReminders({ ...input, id: savedId, notificationIds: [], createdAt: 0 }, member);
+    const ids = await scheduleReminders(
+      { ...input, id: savedId, notificationIds: [], calendarEventId: null, createdAt: 0 },
+      member,
+    );
     await setAppointmentNotifications(db, savedId, ids);
+    const saved = await getAppointment(db, savedId);
+    if (saved && !(await trySyncAppointment(db, saved))) {
+      Alert.alert('Consulta guardada', 'Não foi possível atualizar o calendário do telemóvel.');
+    }
     router.back();
   };
 
