@@ -1,0 +1,70 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar tipos e lint
+        run: |
+          npx tsc --noEmit
+          npx eslint src
+
+      - name: Gerar projeto Android
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Compilar APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Copiar APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk appbaby.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appbaby-apk
+          path: appbaby.apk
+          retention-days: 14
+
+      # Publica o APK numa release "teste" com link fixo, fácil de abrir no telemóvel:
+      # https://github.com/<dono>/<repo>/releases/download/teste/appbaby.apk
+      - name: Publicar APK na release "teste"
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete teste --yes --cleanup-tag || true
+          gh release create teste appbaby.apk \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "Versão de teste" \
+            --notes "APK de teste gerado a partir de ${GITHUB_SHA::7}. Assinado com chave de teste; não serve para a Google Play."

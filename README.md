@@ -20,7 +20,17 @@ Expo SDK 57 (React Native) com TypeScript e Expo Router. Ver [`AGENTS.md`](AGENT
 | `src/db` | Esquema, migrações e acesso à base de dados |
 | `src/lib` | Ficheiros, notificações, segurança, formatação |
 
-## Correr no telemóvel
+## Instalar no Android (APK de teste)
+
+Cada alteração na `main` gera um APK automaticamente no GitHub Actions e publica-o na release **teste**, sempre no mesmo link:
+
+https://github.com/bernas77764-glitch/AppBABY/releases/download/teste/appbaby.apk
+
+Abrir o link no telemóvel, descarregar e abrir o ficheiro, e permitir a instalação de apps desta fonte quando o Android pedir.
+
+O APK é assinado com uma chave de teste: serve para experimentar, não para publicar na Google Play.
+
+## Correr no telemóvel (desenvolvimento)
 
 A app usa módulos nativos (digitalização, SQLCipher), por isso não corre na Expo Go: precisa de uma *development build*.
 
