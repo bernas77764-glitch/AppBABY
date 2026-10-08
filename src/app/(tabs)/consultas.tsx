@@ -19,6 +19,12 @@ export default function Appointments() {
   return (
     <Screen>
       <Button label="Nova consulta" icon="add" onPress={() => router.push('/consulta/editar')} />
+      <Button
+        label="Google Calendário"
+        icon="sync-outline"
+        variant="secondary"
+        onPress={() => router.push('/calendario')}
+      />
       <Chips
         options={[
           { value: 'upcoming', label: 'Próximas' },

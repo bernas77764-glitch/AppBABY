@@ -6,6 +6,7 @@ App Android e iOS para organizar a saúde da família toda, incluindo os animais
 
 - **Família**: perfis de pessoas e de animais (espécie, raça, microchip), com data de nascimento, alergias, grupo sanguíneo e notas.
 - **Consultas**: marcar, editar e apagar; lembretes (30 min, 2 h, 1 dia, 1 semana antes); estado (marcada, realizada, cancelada); registo do que foi dito; abrir o local no mapa.
+- **Google Calendário**: em Consultas → Google Calendário, escolher um calendário do telemóvel. As consultas marcadas são criadas, atualizadas e apagadas nesse calendário; no Android, um calendário da conta Google sincroniza com o Google Calendário. Só vai o motivo, o membro, o médico e o local.
 - **Documentos**: digitalizar com a câmara (deteção de margens), importar da galeria ou PDF; categorias; ligar a um membro e a uma consulta; pesquisa por título e notas; abrir e partilhar.
 - **Privacidade**: tudo fica no telemóvel. A base de dados é cifrada (SQLCipher) com uma chave guardada no Keychain/Keystore, a app pede Face ID / impressão digital / código ao abrir e ao voltar ao fim de 1 minuto, e esconde o conteúdo no ecrã de apps recentes. As notificações não mostram notas clínicas.
 
